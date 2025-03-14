@@ -57,6 +57,12 @@ private:
 
 	/* Cleans up the DirectX object and device */
 	void CleanUpD3D();
+
+	/* Configures ImGui so it is ready for rendering */
+	void ConfigureImGui();
+
+	/* Cleans up everything related to ImGui */
+	void CleanUpImGui();
 public:
 	/**
 	 * @brief Initializes the window, ImGui, and other necessary components

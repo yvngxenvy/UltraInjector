@@ -69,10 +69,30 @@ void UserInterface::CleanUpD3D()
 	}
 }
 
+void UserInterface::ConfigureImGui()
+{
+    // Basic initializiation
+    IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	// ImGui style
+	ImGui::StyleColorsDark();
+
+    // DirectX and windows init
+	ImGui_ImplWin32_Init(hWND);
+	ImGui_ImplDX9_Init(D3DDevice);
+}
+
+void UserInterface::CleanUpImGui()
+{
+}
+
 void UserInterface::Initialize(HINSTANCE hInstance)
 {
 	ConfigureWindow(hInstance);
     ConfigureDevice();
+    ConfigureImGui();
 
     // Main message loop
     bActive = true;
@@ -101,7 +121,8 @@ void UserInterface::Initialize(HINSTANCE hInstance)
                 ImGui_ImplDX9_InvalidateDeviceObjects();
                 HRESULT hr = D3DDevice->Reset(&D3DPresentParameters);
                 if (hr == D3DERR_INVALIDCALL) {
-                    IM_ASSERT(0);
+                    bActive = false;
+                    continue;
                 }
 
                 ImGui_ImplDX9_CreateDeviceObjects();
@@ -110,7 +131,13 @@ void UserInterface::Initialize(HINSTANCE hInstance)
 			bDeviceLost = false;
         }
 
-        // Preprocess ImGui
+        // ImGui preprocess frame
+        ImGui_ImplDX9_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+
+        // ImGui window code
+        ImGui::ShowDemoWindow();
 
         // Rendering
 		D3DDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
@@ -118,8 +145,8 @@ void UserInterface::Initialize(HINSTANCE hInstance)
 		D3DDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
 		D3DDevice->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_RGBA(114, 144, 154, 255), 1.0f, 0);
         if (D3DDevice->BeginScene() >= 0) {
-			//ImGui::Render();
-			//ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+			ImGui::Render();
+			ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 			D3DDevice->EndScene();
         }
 
@@ -133,6 +160,8 @@ void UserInterface::Initialize(HINSTANCE hInstance)
 
 void UserInterface::Destroy()
 {
-	CleanUpD3D();
+    // TODO: Check the order, i dont think it matters but still
+    CleanUpImGui();
+    CleanUpD3D();
 	CleanUpWindow();
 }
