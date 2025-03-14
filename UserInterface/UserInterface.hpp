@@ -1,0 +1,70 @@
+#pragma once
+#include "../ImGui/imgui.h"
+#include "../ImGui/imgui_impl_dx9.h"
+#include "../ImGui/imgui_impl_win32.h"
+
+#include <d3d9.h>
+#pragma comment(lib, "d3d9.lib")
+
+class UserInterface
+{
+private:
+	/* The info of the currently created window class */
+	WNDCLASSEXW WindowClassInfo;
+
+	/* The reference to the user interface window  */
+	HWND hWND;
+
+	/* Whether or not the window/program is active (should be closed or not) */
+	bool bActive;
+
+	/* DirectX object used for creating devices */
+	LPDIRECT3D9 D3D;
+
+	/* The parameters for the "present" method in the device */
+	D3DPRESENT_PARAMETERS D3DPresentParameters;
+
+	/* The device used for rendering and handling DirectX content */
+	LPDIRECT3DDEVICE9 D3DDevice;
+
+	/* Whether the D3D device has been lost or not (can be due to user changes like resolution, graphics update, etc) */
+	bool bDeviceLost;
+private:
+	/**
+	 * @brief The windows process method that handles the messages from the user (WM_RESIZE, WM_EXIT, etc)
+	 * @param hWnd - The handle to the window
+	 * @param msg - The message that was sent to the window
+	 * @param wParam - The first parameter of the message
+	 * @param lParam - The second parameter of the message
+	 * @return - The result of the message
+	 */
+	static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	/**
+	 * @brief Configures and creates the window based on the constants
+	 * @param hInstance - The hInstance given by the operating system (one of the params the WinMain method)
+	 */
+	void ConfigureWindow(HINSTANCE hInstance);
+
+	/* Cleans up the window (HWND) */
+	void CleanUpWindow();
+
+	/**
+	 * @brief Configures the DirectX device
+	 * @return - Whether the configuration was successful or not
+	 */
+	bool ConfigureDevice();
+
+	/* Cleans up the DirectX object and device */
+	void CleanUpD3D();
+public:
+	/**
+	 * @brief Initializes the window, ImGui, and other necessary components
+	 * @param hInstance - The hInstance given by the operating system (one of the params the WinMain method)
+	 */
+	void Initialize(HINSTANCE hInstance = nullptr);
+
+	/* Cleans up the D3D and window */
+	void Destroy();
+};
+

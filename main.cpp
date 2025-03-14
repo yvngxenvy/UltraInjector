@@ -1,6 +1,9 @@
+#include "UserInterface/UserInterface.hpp"
+
 #include <iostream>
 
-int main() {
-	std::cout << "Hello, World!" << std::endl;
-	return 0;
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+	UserInterface window;
+	window.Initialize();
+	window.Destroy();
 }
