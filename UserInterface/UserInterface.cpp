@@ -1,14 +1,40 @@
 #include "UserInterface.hpp"
+#include <iostream>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT __stdcall UserInterface::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    static POINT initalPoint = {0, 0};
+
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {
         return true;
     }
 
     switch (msg) {
+        // TODO: improve movement system
+    case WM_LBUTTONDOWN: {
+        RECT rect = {};
+        GetWindowRect(hWnd, &rect);
+
+        POINT currPoint = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+		initalPoint = POINT{ currPoint.x + rect.left, currPoint.y + rect.top };
+
+        break;
+    }
+    case WM_MOUSEMOVE: {
+        if (wParam == MK_LBUTTON) {
+            RECT rect = {};
+            GetWindowRect(hWnd, &rect);
+
+            POINT currPoint = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+
+            if (currPoint.y <= 23) {
+                SetWindowPos(hWnd, HWND_TOPMOST, currPoint.x + rect.left - initalPoint.x, currPoint.y + rect.top - initalPoint.y, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
+            }
+        }
+        break;
+    }
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
@@ -21,7 +47,7 @@ void UserInterface::ConfigureWindow(HINSTANCE hInstance)
 {
     WindowClassInfo = WNDCLASSEXW(sizeof(WNDCLASSEXW), CS_CLASSDC, WndProc, 0L, 0L, hInstance, nullptr, nullptr, nullptr, nullptr, WINDOW_CLASS_NAME, nullptr);
     RegisterClassExW(&WindowClassInfo);
-    hWND = CreateWindowW(WindowClassInfo.lpszClassName, WINDOW_TITLE, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, WindowSize.x, WindowSize.y, nullptr, nullptr, WindowClassInfo.hInstance, nullptr);
+    hWND = CreateWindowW(WindowClassInfo.lpszClassName, WINDOW_TITLE_W, WS_POPUP, CW_USEDEFAULT, CW_USEDEFAULT, WindowSize.x, WindowSize.y, nullptr, nullptr, WindowClassInfo.hInstance, nullptr);
 
     ShowWindow(hWND, SW_SHOWDEFAULT);
 	UpdateWindow(hWND);
@@ -77,6 +103,7 @@ void UserInterface::ConfigureImGui()
 	ImGuiIO& io = ImGui::GetIO();
 
 	// ImGui style
+    io.IniFilename = nullptr;
 	ImGui::StyleColorsDark();
 
     // DirectX and windows init
@@ -143,7 +170,10 @@ void UserInterface::Initialize(HINSTANCE hInstance)
         ImGui::NewFrame();
 
         // ImGui window code
-        ImGui::ShowDemoWindow();
+		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(WindowSize.x, WindowSize.y), ImGuiCond_Always);
+        ImGui::Begin(WINDOW_TITLE_A, &bActive, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+        ImGui::End();
 
         // Rendering
 		D3DDevice->SetRenderState(D3DRS_ZENABLE, FALSE);

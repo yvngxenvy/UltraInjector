@@ -3,13 +3,19 @@
 #include "../ImGui/imgui_impl_dx9.h"
 #include "../ImGui/imgui_impl_win32.h"
 
+#include <windows.h>
+#include <windowsx.h>
 #include <d3d9.h>
 #pragma comment(lib, "d3d9.lib")
+
+#define DEFINE_WIDE_AND_ANSI_CHAR(VarName, Value) \
+const wchar_t* const VarName##_W = L##Value; \
+const char* const VarName##_A = ##Value;
 
 // TODO: Put this in a better place. I haven't learned c++ long enough to know where these constants are supposed to go
 // Maybe namespace??
 const wchar_t* const WINDOW_CLASS_NAME = L"UltraInjector";
-const wchar_t* const WINDOW_TITLE = L"Ultra Injector";
+DEFINE_WIDE_AND_ANSI_CHAR(WINDOW_TITLE, "Ultra Injector")
 
 // As for these, i need to learn when if i should use constexpr because i am not sure yet
 const POINTS WindowSize = { 600, 400 };
@@ -81,4 +87,3 @@ public:
 	/* Cleans up the D3D and window */
 	void Destroy();
 };
-
