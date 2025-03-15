@@ -18,7 +18,7 @@ const wchar_t* const WINDOW_CLASS_NAME = L"UltraInjector";
 DEFINE_WIDE_AND_ANSI_CHAR(WINDOW_TITLE, "Ultra Injector")
 
 // As for these, i need to learn when if i should use constexpr because i am not sure yet
-const POINTS WindowSize = { 600, 400 };
+const POINTS WINDOW_SIZE = { 600, 400 };
 
 class UserInterface
 {

@@ -13,23 +13,22 @@ LRESULT __stdcall UserInterface::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
     switch (msg) {
         // TODO: improve movement system
     case WM_LBUTTONDOWN: {
-        RECT rect = {};
-        GetWindowRect(hWnd, &rect);
-
-        POINT currPoint = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-		initalPoint = POINT{ currPoint.x + rect.left, currPoint.y + rect.top };
-
+        
+        initalPoint = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
         break;
     }
     case WM_MOUSEMOVE: {
         if (wParam == MK_LBUTTON) {
+            POINT point = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
             RECT rect = {};
+
             GetWindowRect(hWnd, &rect);
 
-            POINT currPoint = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			rect.left += point.x - initalPoint.x;
+			rect.top += point.y - initalPoint.y;
 
-            if (currPoint.y <= 23) {
-                SetWindowPos(hWnd, HWND_TOPMOST, currPoint.x + rect.left - initalPoint.x, currPoint.y + rect.top - initalPoint.y, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
+            if (initalPoint.x >= 0 && initalPoint.x <= WINDOW_SIZE.x && initalPoint.y >= 0 && initalPoint.y <= 26) {
+				SetWindowPos(hWnd, nullptr, rect.left, rect.top, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
             }
         }
         break;
@@ -46,7 +45,7 @@ void UserInterface::ConfigureWindow(HINSTANCE hInstance)
 {
     WindowClassInfo = WNDCLASSEXW(sizeof(WNDCLASSEXW), CS_CLASSDC, WndProc, 0L, 0L, hInstance, nullptr, nullptr, nullptr, nullptr, WINDOW_CLASS_NAME, nullptr);
     RegisterClassExW(&WindowClassInfo);
-    hWND = CreateWindowW(WindowClassInfo.lpszClassName, WINDOW_TITLE_W, WS_POPUP, CW_USEDEFAULT, CW_USEDEFAULT, WindowSize.x, WindowSize.y, nullptr, nullptr, WindowClassInfo.hInstance, nullptr);
+    hWND = CreateWindowW(WindowClassInfo.lpszClassName, WINDOW_TITLE_W, WS_POPUP, CW_USEDEFAULT, CW_USEDEFAULT, WINDOW_SIZE.x, WINDOW_SIZE.y, nullptr, nullptr, WindowClassInfo.hInstance, nullptr);
 
     ShowWindow(hWND, SW_SHOWDEFAULT);
 	UpdateWindow(hWND);
@@ -244,7 +243,7 @@ void UserInterface::Initialize(HINSTANCE hInstance)
 
         // ImGui window code
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(WindowSize.x, WindowSize.y), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(WINDOW_SIZE.x, WINDOW_SIZE.y), ImGuiCond_Always);
         ImGui::Begin(WINDOW_TITLE_A, &bActive, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
         ImGui::End();
 
