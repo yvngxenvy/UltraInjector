@@ -19,9 +19,9 @@ LRESULT __stdcall UserInterface::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
 
 void UserInterface::ConfigureWindow(HINSTANCE hInstance)
 {
-    WindowClassInfo = { sizeof(WNDCLASSEXW), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
+    WindowClassInfo = WNDCLASSEXW(sizeof(WNDCLASSEXW), CS_CLASSDC, WndProc, 0L, 0L, hInstance, nullptr, nullptr, nullptr, nullptr, WINDOW_CLASS_NAME, nullptr);
     RegisterClassExW(&WindowClassInfo);
-    hWND = CreateWindowW(WindowClassInfo.lpszClassName, L"Dear ImGui DirectX9 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, WindowClassInfo.hInstance, nullptr);
+    hWND = CreateWindowW(WindowClassInfo.lpszClassName, WINDOW_TITLE, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, WindowSize.x, WindowSize.y, nullptr, nullptr, WindowClassInfo.hInstance, nullptr);
 
     ShowWindow(hWND, SW_SHOWDEFAULT);
 	UpdateWindow(hWND);
@@ -40,7 +40,6 @@ bool UserInterface::ConfigureDevice()
     // Create the D3DDevice
 	D3D = Direct3DCreate9(D3D_SDK_VERSION);
     if (D3D == nullptr) {
-        CleanUpD3D();
         return false;
     }
 
@@ -52,9 +51,10 @@ bool UserInterface::ConfigureDevice()
     D3DPresentParameters.AutoDepthStencilFormat = D3DFMT_D16;
     D3DPresentParameters.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
     if (D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWND, D3DCREATE_HARDWARE_VERTEXPROCESSING, &D3DPresentParameters, &D3DDevice) < 0) {
-        CleanUpD3D();
         return false;
     }
+
+    return true;
 }
 
 void UserInterface::CleanUpD3D()
@@ -71,7 +71,7 @@ void UserInterface::CleanUpD3D()
 
 void UserInterface::ConfigureImGui()
 {
-    // Basic initializiation
+    // Basic initialization
     IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -86,12 +86,18 @@ void UserInterface::ConfigureImGui()
 
 void UserInterface::CleanUpImGui()
 {
+    ImGui_ImplDX9_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void UserInterface::Initialize(HINSTANCE hInstance)
 {
 	ConfigureWindow(hInstance);
-    ConfigureDevice();
+    if (ConfigureDevice() == false) {
+		CleanUpWindow();
+		return;
+    }
     ConfigureImGui();
 
     // Main message loop
@@ -160,7 +166,6 @@ void UserInterface::Initialize(HINSTANCE hInstance)
 
 void UserInterface::Destroy()
 {
-    // TODO: Check the order, i dont think it matters but still
     CleanUpImGui();
     CleanUpD3D();
 	CleanUpWindow();

@@ -6,6 +6,14 @@
 #include <d3d9.h>
 #pragma comment(lib, "d3d9.lib")
 
+// TODO: Put this in a better place. I haven't learned c++ long enough to know where these constants are supposed to go
+// Maybe namespace??
+const wchar_t* const WINDOW_CLASS_NAME = L"UltraInjector";
+const wchar_t* const WINDOW_TITLE = L"Ultra Injector";
+
+// As for these, i need to learn when if i should use constexpr because i am not sure yet
+const POINTS WindowSize = { 600, 400 };
+
 class UserInterface
 {
 private:
@@ -53,7 +61,7 @@ private:
 	 * @brief Configures the DirectX device
 	 * @return - Whether the configuration was successful or not
 	 */
-	bool ConfigureDevice();
+	[[nodiscard]] bool ConfigureDevice();
 
 	/* Cleans up the DirectX object and device */
 	void CleanUpD3D();
