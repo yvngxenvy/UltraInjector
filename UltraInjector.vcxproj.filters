@@ -9,7 +9,8 @@
     <ClCompile Include="ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="ImGui\imgui_tables.cpp" />
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="UserInterface\UserInterface.cpp" />
+    <ClCompile Include="Components\UserInterface.cpp" />
+    <ClCompile Include="Injector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImGui\imconfig.h" />
@@ -20,6 +21,7 @@
     <ClInclude Include="ImGui\imstb_rectpack.h" />
     <ClInclude Include="ImGui\imstb_textedit.h" />
     <ClInclude Include="ImGui\imstb_truetype.h" />
-    <ClInclude Include="UserInterface\UserInterface.hpp" />
+    <ClInclude Include="Components\UserInterface.hpp" />
+    <ClInclude Include="Injector.hpp" />
   </ItemGroup>
 </Project>

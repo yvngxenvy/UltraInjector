@@ -43,6 +43,9 @@ private:
 
 	/* Whether the D3D device has been lost or not (can be due to user changes like resolution, graphics update, etc) */
 	bool bDeviceLost;
+public:
+	UserInterface() = default;
+	~UserInterface() = default;
 private:
 	/**
 	 * @brief The windows process method that handles the messages from the user (WM_RESIZE, WM_EXIT, etc)
