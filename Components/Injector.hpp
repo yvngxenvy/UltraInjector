@@ -30,7 +30,7 @@ struct Process {
 	bool IsRunning();
 
 	/**
-	 * @brief Returns the current HWND. Be cautious how many times you call this method, as there is no caching involved. Relies on the ProcessID
+	 * @brief Returns the current HWND. Be cautious how many times you call this method, as there is no caching involved. Relies on the ProcessName
 	 * @return The HWND of the process
 	 */
 	HWND GetHWND();
@@ -54,6 +54,12 @@ struct Process {
 
 	bool operator!=(const Process& other) const {
 		return ProcessID != other.ProcessID;
+	}
+	
+	void operator=(const Process& other) {
+		ProcessID = other.ProcessID;
+		WindowTitle = other.WindowTitle;
+		ProcessName = other.ProcessName;
 	}
 };
 

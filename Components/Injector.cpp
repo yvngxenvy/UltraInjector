@@ -17,21 +17,24 @@ bool Process::IsRunning()
     return false;
 }
 
-HWND Process::GetHWND()
-{
-    HWND hwnd = NULL;
-    DWORD pid = ProcessID;
+HWND Process::GetHWND() {
+    struct EnumData {
+        DWORD processID;
+        HWND hwnd;
+    } data{ ProcessID, NULL };
+
     EnumWindows([](HWND hWnd, LPARAM lParam) -> BOOL {
-        DWORD windowPID;
-        GetWindowThreadProcessId(hWnd, &windowPID);
-        if (windowPID == (DWORD)lParam)
-        {
-            *(HWND*)lParam = hWnd;
-            return FALSE;
+        EnumData& data = *reinterpret_cast<EnumData*>(lParam);
+        DWORD windowProcessID;
+        GetWindowThreadProcessId(hWnd, &windowProcessID);
+        if (windowProcessID == data.processID) {
+            data.hwnd = hWnd;
+            return FALSE; // Stop enumeration once found
         }
-        return TRUE;
-    }, (LPARAM)&pid);
-    return hwnd;
+        return TRUE; // Continue enumeration
+    }, reinterpret_cast<LPARAM>(&data));
+
+    return data.hwnd;
 }
 
 HANDLE Process::CreateHandle()
@@ -40,7 +43,9 @@ HANDLE Process::CreateHandle()
 }
 
 void Injector::CacheProcesses() {
-	CachedProcesses.clear();
+	// Make a temp vec instead of clearing the current one to fix imgui stutters
+    std::vector<Process> newCachedProcesses = {};
+	// CachedProcesses.clear();
 
     DWORD processIds[1024], cbNeeded;
 
@@ -65,12 +70,15 @@ void Injector::CacheProcesses() {
 
                     GetWindowTextA(process.GetHWND(), windowTitle, MAX_PATH * 2);
                     process.WindowTitle = windowTitle;
-                    CachedProcesses.push_back(process);
+                    newCachedProcesses.push_back(process);
+					//CachedProcesses.push_back(process);
                 }
                 CloseHandle(hProcess);
             }
         }
     }
+
+	CachedProcesses = newCachedProcesses;
 }
 
 void Injector::InitializePeriodic()
