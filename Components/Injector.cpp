@@ -2,6 +2,10 @@
 
 bool Process::IsRunning()
 {
+	if (ProcessID == 0) {
+		return false;
+	}
+
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, ProcessID);
     if (hProcess == NULL) {
         return false;
@@ -108,6 +112,16 @@ std::vector<Process> Injector::GetActiveWindows()
 		}
 	}
 	return processes;
+}
+
+Process Injector::RelocateProcess(Process Process)
+{
+	for (auto process : CachedProcesses) {
+		if (process.ProcessName == Process.ProcessName) {
+			return process;
+		}
+	}
+	return Process;
 }
 
 void Injector::Initialize()

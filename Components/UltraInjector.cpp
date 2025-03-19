@@ -9,6 +9,33 @@ void UltraInjector::DisplayMainUserInterface()
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 	ImGui::InputTextWithHint("##ProcessName", "Process name will go here...", &SelectedProcess.ProcessName, ImGuiInputTextFlags_ReadOnly);
+	if (SelectedProcess.ProcessID != 0) {
+		bool bIsRunning = SelectedProcess.IsRunning();
+		ImGui::Text("Is Running: %s", bIsRunning ? "True" : "False");
+
+		if (bIsRunning) {
+			bool bHWND = SelectedProcess.GetHWND();
+			ImGui::Text("Process ID: %d", SelectedProcess.ProcessID);
+			ImGui::Text("Window Active: %s", bHWND ? "True" : "False");
+
+			if (bHWND) {
+				ImGui::Text("Window Title: %s", SelectedProcess.WindowTitle.c_str());
+
+			}
+		}
+		else {
+			SelectedProcess = Injector.RelocateProcess(SelectedProcess);
+		}
+	}
+
+	// Display fps stats at the bottom
+	std::string fps = std::to_string(static_cast<int32_t>(round(ImGui::GetIO().Framerate))) + " fps";
+
+	ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 36.f);
+	ImGui::Separator();
+	ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 33.f);
+	ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize(fps.c_str()).x + 15.f);
+	ImGui::Text(fps.c_str());
 }
 
 void UltraInjector::DisplaySelectProcessUserInterface()
@@ -33,6 +60,10 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 					if (processSearch.empty() == true || Utils::ToLower(displayProcess).find(Utils::ToLower(processSearch)) != std::string::npos) {
 						if (ImGui::Selectable(std::string(displayProcess + "##_" + std::to_string(i)).c_str(), (process.ProcessID == SelectedProcess.ProcessID))) {
 							SelectedProcess = process;
+
+							if (process == SelectedProcess) { // Handle double clicks
+								CurrentDisplay = UserInterfaceDisplay::UID_Main;
+							}
 						}
 					}
 				}

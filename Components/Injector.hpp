@@ -92,6 +92,13 @@ public:
 	 */
 	std::vector<Process> GetActiveWindows();
 
+	/**
+	 * @brief Finds a process from process name if it is lost
+	 * @param Process - The process used as a reference to find the process
+	 * @return The new process found with updated info
+	 */
+	Process RelocateProcess(Process Process);
+
 	/* Initializes the periodic loop */
 	void Initialize();
 };
