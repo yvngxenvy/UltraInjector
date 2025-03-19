@@ -1,7 +1,6 @@
-#include "Components/UserInterface.hpp"
+#include "Components/UltraInjector.hpp"
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-	UserInterface window;
-	window.Initialize();
-	window.Destroy();
+	UltraInjector injector;
+	injector.Initialize();
 }

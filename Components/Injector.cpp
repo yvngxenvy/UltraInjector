@@ -63,7 +63,8 @@ void Injector::CacheProcesses() {
                     Process process(processIds[i], "", processName);
                     char windowTitle[MAX_PATH * 2] = "<unknown>";
 
-                    process.WindowTitle = GetWindowTextA(process.GetHWND(), windowTitle, MAX_PATH * 2);
+                    GetWindowTextA(process.GetHWND(), windowTitle, MAX_PATH * 2);
+                    process.WindowTitle = windowTitle;
                     CachedProcesses.push_back(process);
                 }
                 CloseHandle(hProcess);

@@ -245,7 +245,7 @@ void UserInterface::Initialize(HINSTANCE hInstance)
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(WINDOW_SIZE.x, WINDOW_SIZE.y), ImGuiCond_Always);
         ImGui::Begin(WINDOW_TITLE_A, &bActive, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
-
+        RenderFn();
         ImGui::End();
 
         // Rendering
@@ -265,6 +265,11 @@ void UserInterface::Initialize(HINSTANCE hInstance)
 			bDeviceLost = true;
 		}
     }
+}
+
+void UserInterface::SetImGuiRenderExecution(std::function<void()> RenderFn)
+{
+	this->RenderFn = RenderFn;
 }
 
 void UserInterface::Destroy()

@@ -5,6 +5,7 @@
 #include "../ImGui/imgui_impl_dx9.h"
 #include "../ImGui/imgui_impl_win32.h"
 
+#include <functional>
 #include <windows.h>
 #include <windowsx.h>
 #include <d3d9.h>
@@ -27,6 +28,9 @@ const POINTS WINDOW_SIZE = { 500, 330 };
 class UserInterface
 {
 private:
+	/* The imgui render function that will be called every frame */
+	std::function<void()> RenderFn;
+
 	/* The info of the currently created window class */
 	WNDCLASSEXW WindowClassInfo;
 
@@ -92,6 +96,12 @@ public:
 	 * @param hInstance - The hInstance given by the operating system (one of the params the WinMain method)
 	 */
 	void Initialize(HINSTANCE hInstance = nullptr);
+
+	/**
+	 * @brief Sets the render function that will be called every frame. This is the code for your ImGui code
+	 * @param RenderFn - The function that will be called every frame
+	 */
+	void SetImGuiRenderExecution(std::function<void()> RenderFn);
 
 	/* Cleans up the D3D and window */
 	void Destroy();
