@@ -13,6 +13,7 @@
     <ClCompile Include="Components\Injector.cpp" />
     <ClCompile Include="Components\UltraInjector.cpp" />
     <ClCompile Include="ImGui\imgui_stdlib.cpp" />
+    <ClCompile Include="Components\FileManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImGui\imconfig.h" />
@@ -28,5 +29,6 @@
     <ClInclude Include="Components\UltraInjector.hpp" />
     <ClInclude Include="ImGui\imgui_stdlib.h" />
     <ClInclude Include="Utils.hpp" />
+    <ClInclude Include="Components\FileManager.hpp" />
   </ItemGroup>
 </Project>

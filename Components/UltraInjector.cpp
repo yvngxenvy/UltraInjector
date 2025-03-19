@@ -154,10 +154,15 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 	}
 }
 
+void UltraInjector::DisplaySelectDLLUserInterface()
+{
+
+}
+
 void UltraInjector::Initialize()
 {
-	// TODO: Make injector a field later on. dont want to now cuz it looks cool
 	Injector.Initialize();
+	FileManager.Initialize();
 
 	UserInterface window;
 	window.SetImGuiRenderExecution([&]() {
@@ -166,6 +171,9 @@ void UltraInjector::Initialize()
 		}
 		else if (CurrentDisplay == UserInterfaceDisplay::UID_SelectProcess) {
 			DisplaySelectProcessUserInterface();
+		}
+		else if (CurrentDisplay == UserInterfaceDisplay::UID_SelectProcess) {
+			DisplaySelectDLLUserInterface();
 		}
 	});
 	window.Initialize(); // This is a method which will run until the program exits

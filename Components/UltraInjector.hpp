@@ -2,6 +2,7 @@
 
 #include "UserInterface.hpp"
 #include "Injector.hpp"
+#include "FileManager.hpp"
 
 /* Enum of what to display on the current window */
 enum class UserInterfaceDisplay : uint8_t {
@@ -16,6 +17,9 @@ private:
 	/* Main injector object */
 	Injector Injector;
 
+	/* Main file manager object */
+	FileManager FileManager;
+
 	/* The current process that is selected */
 	Process SelectedProcess;
 
@@ -27,6 +31,9 @@ private:
 
 	/* Handles the ImGui code for the select process window */
 	void DisplaySelectProcessUserInterface();
+
+	/* Handles the ImGui code for the select DLL window */
+	void DisplaySelectDLLUserInterface();
 public:
 	/* Default constructer and and destructor */
 
