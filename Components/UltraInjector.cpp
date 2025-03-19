@@ -54,8 +54,17 @@ void UltraInjector::DisplayMainUserInterface()
 	ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 31.f);
 	ImGui::Separator();
 	ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 28.f);
-    ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize(fps.c_str()).x + 15.f);
-    ImGui::Text(fps.c_str());
+	static float offset = 0.0f;
+	static bool direction = true; // true for right, false for left
+	float maxOffset = ImGui::GetContentRegionAvail().x + 100.f;
+	if (direction) {
+		offset += 0.8f;
+		if (offset >= maxOffset) {
+			offset = 0.0f;
+		}
+	}
+	ImGui::SetCursorPosX(offset - 50.f);
+	ImGui::Text(fps.c_str());
 }
 
 void UltraInjector::DisplaySelectProcessUserInterface()
