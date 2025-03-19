@@ -50,9 +50,10 @@ void UltraInjector::DisplayMainUserInterface()
 		ImGui::Separator();
 		if (ImGui::BeginChild("##InjectButtons", { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - 20.f})) {
 			if (ImGui::Button("Inject", { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y / 2 - 5.f })) {
-
+				Injector.InjectDLL(SelectedProcess, SelectedDLLProfile.Path);
 			}
 			if (ImGui::Button("Uninject", { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y })) {
+				Injector.UninjectDLL(SelectedProcess, SelectedDLLProfile.Path);
 			}
 			ImGui::EndChild();
 		}
