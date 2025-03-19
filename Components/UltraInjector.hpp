@@ -6,7 +6,8 @@
 /* Enum of what to display on the current window */
 enum class UserInterfaceDisplay : uint8_t {
 	UID_Main = 0,
-	UID_SelectProcess = 1
+	UID_SelectProcess = 1,
+	UID_SelectDLL = 2
 };
 
 class UltraInjector

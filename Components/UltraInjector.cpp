@@ -9,6 +9,14 @@ void UltraInjector::DisplayMainUserInterface()
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 	ImGui::InputTextWithHint("##ProcessName", "Process name will go here...", &SelectedProcess.ProcessName, ImGuiInputTextFlags_ReadOnly);
+
+	if (ImGui::Button("Select DLL")) {
+		CurrentDisplay = UserInterfaceDisplay::UID_SelectDLL;
+	}
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+	ImGui::InputTextWithHint("##DLLName", "DLL name will go here...", &SelectedProcess.ProcessName, ImGuiInputTextFlags_ReadOnly);
+
 	if (SelectedProcess.ProcessID != 0) {
 		ImGui::Separator();
 		bool bIsRunning = SelectedProcess.IsRunning();
@@ -29,9 +37,11 @@ void UltraInjector::DisplayMainUserInterface()
 			ImGui::TextColored(ImVec4(0.f, 0.f, 1.f, 1.f), "%d", SelectedProcess.ProcessID);
 
 			if (bHWND) {
-				ImGui::Text("Window Title:");
-				ImGui::SameLine();
-				ImGui::TextColored(ImVec4(0.f, 0.f, 1.f, 1.f), "%s", SelectedProcess.WindowTitle.c_str());
+				if (SelectedProcess.WindowTitle.empty() == false) {
+					ImGui::Text("Window Title:");
+					ImGui::SameLine();
+					ImGui::TextColored(ImVec4(0.f, 0.f, 1.f, 1.f), "%s", SelectedProcess.WindowTitle.c_str());
+				}
 			}
 		}
 		else {
@@ -55,13 +65,10 @@ void UltraInjector::DisplayMainUserInterface()
 	ImGui::Separator();
 	ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 28.f);
 	static float offset = 0.0f;
-	static bool direction = true; // true for right, false for left
 	float maxOffset = ImGui::GetContentRegionAvail().x + 100.f;
-	if (direction) {
-		offset += 0.8f;
-		if (offset >= maxOffset) {
-			offset = 0.0f;
-		}
+	offset += 0.8f;
+	if (offset >= maxOffset) {
+		offset = 0.0f;
 	}
 	ImGui::SetCursorPosX(offset - 50.f);
 	ImGui::Text(fps.c_str());
