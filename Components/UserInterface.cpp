@@ -244,7 +244,7 @@ void UserInterface::Initialize(HINSTANCE hInstance)
         // ImGui window code
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(WINDOW_SIZE.x, WINDOW_SIZE.y), ImGuiCond_Always);
-        ImGui::Begin(WINDOW_TITLE_A, &bActive, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+        ImGui::Begin(WINDOW_TITLE_A, &bActive, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar);
         if (RenderFn) {
             RenderFn();
         }

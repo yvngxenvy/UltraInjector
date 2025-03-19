@@ -10,32 +10,52 @@ void UltraInjector::DisplayMainUserInterface()
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 	ImGui::InputTextWithHint("##ProcessName", "Process name will go here...", &SelectedProcess.ProcessName, ImGuiInputTextFlags_ReadOnly);
 	if (SelectedProcess.ProcessID != 0) {
+		ImGui::Separator();
 		bool bIsRunning = SelectedProcess.IsRunning();
-		ImGui::Text("Is Running: %s", bIsRunning ? "True" : "False");
+        ImGui::Text("Process Active:");
+		ImGui::SameLine();
+		ImGui::TextColored(bIsRunning ? ImVec4(0.0f, 1.f, 0.f, 1.0f) : ImVec4(1.f, 0.f, 0.f, 1.f), bIsRunning ? "True" : "False");
 
 		if (bIsRunning) {
+			ImGui::SameLine();
+
 			bool bHWND = SelectedProcess.GetHWND();
-			ImGui::Text("Process ID: %d", SelectedProcess.ProcessID);
-			ImGui::Text("Window Active: %s", bHWND ? "True" : "False");
+			ImGui::Text("Window Active:");
+			ImGui::SameLine();
+			ImGui::TextColored(bHWND ? ImVec4(0.0f, 1.f, 0.f, 1.0f) : ImVec4(1.f, 0.f, 0.f, 1.f), bHWND ? "True" : "False");
+
+			ImGui::Text("Process ID:");
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(0.f, 0.f, 1.f, 1.f), "%d", SelectedProcess.ProcessID);
 
 			if (bHWND) {
-				ImGui::Text("Window Title: %s", SelectedProcess.WindowTitle.c_str());
-
+				ImGui::Text("Window Title:");
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(0.f, 0.f, 1.f, 1.f), "%s", SelectedProcess.WindowTitle.c_str());
 			}
 		}
 		else {
 			SelectedProcess = Injector.RelocateProcess(SelectedProcess);
+		}
+		ImGui::Separator();
+		if (ImGui::BeginChild("##InjectButtons", { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - 20.f})) {
+			if (ImGui::Button("Inject", { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y / 2 - 5.f })) {
+
+			}
+			if (ImGui::Button("Uninject", { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y })) {
+			}
+			ImGui::EndChild();
 		}
 	}
 
 	// Display fps stats at the bottom
 	std::string fps = std::to_string(static_cast<int32_t>(round(ImGui::GetIO().Framerate))) + " fps";
 
-	ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 36.f);
+	ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 31.f);
 	ImGui::Separator();
-	ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 33.f);
-	ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize(fps.c_str()).x + 15.f);
-	ImGui::Text(fps.c_str());
+	ImGui::SetCursorPosY(ImGui::GetWindowSize().y - 28.f);
+    ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize(fps.c_str()).x + 15.f);
+    ImGui::Text(fps.c_str());
 }
 
 void UltraInjector::DisplaySelectProcessUserInterface()
@@ -96,6 +116,10 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 					if (processSearch.empty() == true || Utils::ToLower(displayProcess).find(Utils::ToLower(processSearch)) != std::string::npos) {
 						if (ImGui::Selectable(std::string(displayProcess + "##_" + std::to_string(i)).c_str(), (process.ProcessID == SelectedProcess.ProcessID))) {
 							SelectedProcess = process;
+
+							if (process == SelectedProcess) { // Handle double clicks
+								CurrentDisplay = UserInterfaceDisplay::UID_Main;
+							}
 						}
 					}
 				}
