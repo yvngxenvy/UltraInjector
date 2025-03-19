@@ -63,5 +63,23 @@ public:
 
 	/* Saves the cached profiles to file */
 	void SaveProfiles();
+
+	/**
+	 * @brief Gets the current profiles
+	 * @return The current profiles as a vector of the wrapper struct
+	 */
+	std::vector<DLLProfile> GetProfiles();
+
+	/**
+	 * @brief Adds a new profile to the current profiles
+	 * @param Profile The profile to add
+	 */
+	void AddProfile(DLLProfile Profile);
+
+	/**
+	 * @brief Removes a profile from the current profiles
+	 * @param Profile The profile to remove
+	 */
+	void RemoveProfile(DLLProfile Profile);
 };
 
