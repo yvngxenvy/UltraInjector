@@ -46,10 +46,30 @@ void FileManager::LoadProfiles()
 	// Process the JSON data if valid
 }
 
+void FileManager::LoadCacheData()
+{
+	std::ifstream file(FolderPath / CACHED_FILENAME);
+	if (file.is_open() == false) {
+		return;
+	}
+	nlohmann::json json;
+	try {
+		file >> json;
+		InjectorCacheData cacheData(json["ProcessName"].get<std::string>(), json["DLLPath"].get<std::string>());
+		LoadedCacheData = cacheData;
+	}
+	catch (nlohmann::json::parse_error& e) {
+		// Handle parse error (e.g., log the error, notify the user, etc.)
+		return;
+	}
+	// Process the JSON data if valid
+}
+
 void FileManager::Initialize()
 {
 	InitializeFolder();
 	LoadProfiles();
+	LoadCacheData();
 }
 
 void FileManager::SaveProfiles()
@@ -82,4 +102,23 @@ void FileManager::RemoveProfile(DLLProfile Profile)
 {
 	CurrentProfiles.erase(std::remove(CurrentProfiles.begin(), CurrentProfiles.end(), Profile), CurrentProfiles.end());
 	SaveProfiles();
+}
+
+InjectorCacheData FileManager::GetCacheData()
+{
+	return LoadedCacheData;
+}
+
+void FileManager::SetCacheData(InjectorCacheData Data)
+{
+	LoadedCacheData = Data;
+	std::ofstream file(FolderPath / CACHED_FILENAME);
+	if (file.is_open() == false) {
+		return;
+	}
+	nlohmann::json json;
+	json["ProcessName"] = Data.ProcessName;
+	json["DLLPath"] = Data.DLLPath;
+	file << json.dump(4);
+	file.close();
 }

@@ -191,7 +191,7 @@ bool Injector::UninjectDLL(Process Process, const std::filesystem::path DLLPath)
     HMODULE hModule = Process.FindModule(DLLPath.string());
     if (!hModule) {
         CloseHandle(hProcess);
-        return;
+        return false;
     }
 
     HMODULE kernalLibrary = GetModuleHandleA("Kernel32.dll");
@@ -211,6 +211,8 @@ bool Injector::UninjectDLL(Process Process, const std::filesystem::path DLLPath)
     WaitForSingleObject(hLoadThread, INFINITE);
 
     CloseHandle(hProcess);
+
+    return true;
 }
 
 Process Injector::RelocateProcess(Process Process)

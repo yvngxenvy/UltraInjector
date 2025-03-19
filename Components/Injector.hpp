@@ -106,7 +106,7 @@ public:
 	 * @param DLLPath - The path to the DLL to inject
 	 * @return True if the DLL was injected successfully, false otherwise
 	 */
-	bool InjectDLL(Process Process, const std::filesystem::path DLLPath);
+	[[nodiscard]] bool InjectDLL(Process Process, const std::filesystem::path DLLPath);
 
 	/**
 	 * @brief Uninjects a DLL into a process
@@ -114,7 +114,7 @@ public:
 	 * @param DLLPath - The path to the DLL to uninject
 	 * @return True if the DLL was uninjected successfully, false otherwise
 	 */
-	bool UninjectDLL(Process Process, const std::filesystem::path DLLPath);
+	[[nodiscard]] bool UninjectDLL(Process Process, const std::filesystem::path DLLPath);
 
 	/**
 	 * @brief Finds a process from process name if it is lost

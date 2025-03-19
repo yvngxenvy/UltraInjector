@@ -8,6 +8,7 @@
 
 const std::string INJECTOR_FOLDER = "UltraInjector";
 const std::string PROFILES_FILENAME = "Profiles.json";
+const std::string CACHED_FILENAME = "InjectorCache.json";
 
 /* The info for DLLs the user has stored that will be used for injection */
 struct DLLProfile {
@@ -35,6 +36,35 @@ struct DLLProfile {
 	}
 };
 
+/* Cached data for injector for quick injecting */
+struct InjectorCacheData {
+	/* The process that was recently used by the user */
+	std::string ProcessName;
+
+	/* The DLL that was recently used by the user */
+	std::string DLLPath;
+
+	/* Constructor */
+
+	InjectorCacheData() : ProcessName(""), DLLPath("") {}
+	InjectorCacheData(std::string ProcessName, std::string DLLPath) : ProcessName(ProcessName), DLLPath(DLLPath) {}
+
+	/* Operators */
+
+	bool operator==(const InjectorCacheData& Other) const {
+		return ProcessName == Other.ProcessName && DLLPath == Other.DLLPath;
+	}
+
+	bool operator!=(const InjectorCacheData& Other) const {
+		return !(*this == Other);
+	}
+
+	void operator=(const InjectorCacheData& Other) {
+		ProcessName = Other.ProcessName;
+		DLLPath = Other.DLLPath;
+	}
+};
+
 class FileManager
 {
 private:
@@ -43,6 +73,9 @@ private:
 
 	/* The current cached DLL profiles */
 	std::vector<DLLProfile> CurrentProfiles;
+
+	/* Recently loaded cache data */
+	InjectorCacheData LoadedCacheData;
 public:
 	/* Default constructor and destructor */
 
@@ -57,6 +90,9 @@ private:
 
 	/* Loads the current profiles to the CurrentProfiles field */
 	void LoadProfiles();
+
+	/* Loads the cache data into the LoadedCacheData field */
+	void LoadCacheData();
 public:
 	/* Initializes DLL profiles */
 	void Initialize();
@@ -81,5 +117,17 @@ public:
 	 * @param Profile The profile to remove
 	 */
 	void RemoveProfile(DLLProfile Profile);
+
+	/**
+	 * @brief Gets the loaded cache data
+	 * @return The loaded cache data
+	 */
+	InjectorCacheData GetCacheData();
+
+	/**
+	 * @brief Sets the cache data (in file)
+	 * @param Data - The data to set
+	 */
+	void SetCacheData(InjectorCacheData Data);
 };
 

@@ -98,6 +98,8 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 						if (ImGui::Selectable(std::string(displayProcess + "##_" + std::to_string(i)).c_str(), (process == SelectedProcess))) {
 							SelectedProcess = process;
 
+							FileManager.SetCacheData(InjectorCacheData(SelectedProcess.ProcessName, SelectedDLLProfile.Path.string()));
+
 							if (process == SelectedProcess) { // Handle double clicks
 								CurrentDisplay = UserInterfaceDisplay::UID_Main;
 							}
@@ -136,6 +138,8 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 						if (ImGui::Selectable(std::string(displayProcess + "##_" + std::to_string(i)).c_str(), (process == SelectedProcess))) {
 							SelectedProcess = process;
 
+							FileManager.SetCacheData(InjectorCacheData(SelectedProcess.ProcessName, SelectedDLLProfile.Path.string()));
+
 							if (process == SelectedProcess) { // Handle double clicks
 								CurrentDisplay = UserInterfaceDisplay::UID_Main;
 							}
@@ -166,6 +170,8 @@ void UltraInjector::DisplaySelectDLLUserInterface()
 			for (auto profile : FileManager.GetProfiles()) {
 				if (ImGui::Selectable(profile.Name.c_str(), SelectedDLLProfile == profile)) {
 					SelectedDLLProfile = profile;
+
+					FileManager.SetCacheData(InjectorCacheData(SelectedProcess.ProcessName, SelectedDLLProfile.Path.string()));
 
 					if (profile == SelectedDLLProfile) { // Handle double clicks
 						CurrentDisplay = UserInterfaceDisplay::UID_Main;
@@ -219,6 +225,18 @@ void UltraInjector::Initialize()
 {
 	Injector.Initialize();
 	FileManager.Initialize();
+
+	InjectorCacheData cacheData = FileManager.GetCacheData();
+
+	// PID of 1 so program will can automatically relocate the process
+	SelectedProcess = Process(1, "", cacheData.ProcessName);
+	
+	for (const auto& profile : FileManager.GetProfiles()) {
+		if (profile.Path == cacheData.DLLPath) {
+			SelectedDLLProfile = profile;
+			break;
+		}
+	}
 
 	UserInterface window;
 	window.SetImGuiRenderExecution([&]() {
