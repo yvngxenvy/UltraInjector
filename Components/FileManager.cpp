@@ -1,5 +1,13 @@
 #include "FileManager.hpp"
 
+nlohmann::json DLLProfile::ToJson()
+{
+	nlohmann::json ret;
+	ret["Path"] = Path.string();
+	ret["Name"] = Name;
+	return ret;
+}
+
 std::filesystem::path FileManager::GetFolderPath()
 {
 	return FolderPath;
@@ -59,10 +67,19 @@ void FileManager::SaveProfiles()
 	file.close();
 }
 
-nlohmann::json DLLProfile::ToJson()
+std::vector<DLLProfile> FileManager::GetProfiles()
 {
-	nlohmann::json ret;
-	ret["Path"] = Path.string();
-	ret["Name"] = Name;
-	return ret;
+	return CurrentProfiles;
+}
+
+void FileManager::AddProfile(DLLProfile Profile)
+{
+	CurrentProfiles.push_back(Profile);
+	SaveProfiles();
+}
+
+void FileManager::RemoveProfile(DLLProfile Profile)
+{
+	CurrentProfiles.erase(std::remove(CurrentProfiles.begin(), CurrentProfiles.end(), Profile), CurrentProfiles.end());
+	SaveProfiles();
 }

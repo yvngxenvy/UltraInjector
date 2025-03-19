@@ -15,7 +15,7 @@ void UltraInjector::DisplayMainUserInterface()
 	}
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-	ImGui::InputTextWithHint("##DLLName", "DLL name will go here...", &SelectedProcess.ProcessName, ImGuiInputTextFlags_ReadOnly);
+	ImGui::InputTextWithHint("##DLLName", "DLL name will go here...", &SelectedDLLProfile.Name, ImGuiInputTextFlags_ReadOnly);
 
 	if (SelectedProcess.ProcessID != 0) {
 		ImGui::Separator();
@@ -94,7 +94,7 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 					}
 
 					if (processSearch.empty() == true || Utils::ToLower(displayProcess).find(Utils::ToLower(processSearch)) != std::string::npos) {
-						if (ImGui::Selectable(std::string(displayProcess + "##_" + std::to_string(i)).c_str(), (process.ProcessID == SelectedProcess.ProcessID))) {
+						if (ImGui::Selectable(std::string(displayProcess + "##_" + std::to_string(i)).c_str(), (process == SelectedProcess))) {
 							SelectedProcess = process;
 
 							if (process == SelectedProcess) { // Handle double clicks
@@ -106,6 +106,8 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 
 				ImGui::EndListBox();
 			}
+
+			ImGui::Separator();
 
 			if (ImGui::Button("Select", ImGui::GetContentRegionAvail())) {
 				CurrentDisplay = UserInterfaceDisplay::UID_Main;
@@ -130,7 +132,7 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 					}
 
 					if (processSearch.empty() == true || Utils::ToLower(displayProcess).find(Utils::ToLower(processSearch)) != std::string::npos) {
-						if (ImGui::Selectable(std::string(displayProcess + "##_" + std::to_string(i)).c_str(), (process.ProcessID == SelectedProcess.ProcessID))) {
+						if (ImGui::Selectable(std::string(displayProcess + "##_" + std::to_string(i)).c_str(), (process == SelectedProcess))) {
 							SelectedProcess = process;
 
 							if (process == SelectedProcess) { // Handle double clicks
@@ -142,6 +144,8 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 
 				ImGui::EndListBox();
 			}
+
+			ImGui::Separator();
 
 			if (ImGui::Button("Select", ImGui::GetContentRegionAvail())) {
 				CurrentDisplay = UserInterfaceDisplay::UID_Main;
@@ -156,7 +160,58 @@ void UltraInjector::DisplaySelectProcessUserInterface()
 
 void UltraInjector::DisplaySelectDLLUserInterface()
 {
+	if (ImGui::BeginChild("##Profiles", {ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y-120.f})) {
+		if (ImGui::BeginListBox("##ProfilesListBox", ImGui::GetContentRegionAvail())) {
+			for (auto profile : FileManager.GetProfiles()) {
+				if (ImGui::Selectable(profile.Name.c_str(), SelectedDLLProfile == profile)) {
+					SelectedDLLProfile = profile;
 
+					if (profile == SelectedDLLProfile) { // Handle double clicks
+						CurrentDisplay = UserInterfaceDisplay::UID_Main;
+					}
+				}
+			}
+			ImGui::EndListBox();
+		}
+		ImGui::EndChild();
+	}
+
+	ImGui::Separator();
+
+	if (ImGui::Button("Select DLL", { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y/2-6.f })) {
+		CurrentDisplay = UserInterfaceDisplay::UID_Main;
+	}
+
+	if (ImGui::Button("Add DLL Profile", { ImGui::GetContentRegionAvail().x / 2 - 5.f, ImGui::GetContentRegionAvail().y })) {
+		// Open a file dialog to select a DLL file
+		OPENFILENAMEA ofn;
+		char szFile[260] = { 0 };
+		ZeroMemory(&ofn, sizeof(ofn));
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = nullptr;
+		ofn.lpstrFile = szFile;
+		ofn.nMaxFile = sizeof(szFile);
+		ofn.lpstrFilter = "DLL Files\0*.dll\0";
+		ofn.nFilterIndex = 1;
+		ofn.lpstrFileTitle = nullptr;
+		ofn.nMaxFileTitle = 0;
+		ofn.lpstrInitialDir = nullptr;
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+		if (GetOpenFileNameA(&ofn) == TRUE) {
+			std::filesystem::path selectedPath = ofn.lpstrFile;
+			std::string fileName = selectedPath.filename().string();
+			SelectedDLLProfile = DLLProfile(selectedPath, fileName);
+			FileManager.AddProfile(SelectedDLLProfile);
+		}
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Remove Selected DLL Profile", { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y })) {
+		if (SelectedDLLProfile.Path.empty() == false) {
+			FileManager.RemoveProfile(SelectedDLLProfile);
+			SelectedDLLProfile = DLLProfile();
+		}
+	}
 }
 
 void UltraInjector::Initialize()
@@ -172,7 +227,7 @@ void UltraInjector::Initialize()
 		else if (CurrentDisplay == UserInterfaceDisplay::UID_SelectProcess) {
 			DisplaySelectProcessUserInterface();
 		}
-		else if (CurrentDisplay == UserInterfaceDisplay::UID_SelectProcess) {
+		else if (CurrentDisplay == UserInterfaceDisplay::UID_SelectDLL) {
 			DisplaySelectDLLUserInterface();
 		}
 	});

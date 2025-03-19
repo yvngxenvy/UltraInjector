@@ -23,6 +23,9 @@ private:
 	/* The current process that is selected */
 	Process SelectedProcess;
 
+	/* The current DLL profile that is selected */
+	DLLProfile SelectedDLLProfile;
+
 	/* The current display that is being shown */
 	UserInterfaceDisplay CurrentDisplay = UserInterfaceDisplay::UID_Main;
 private:
