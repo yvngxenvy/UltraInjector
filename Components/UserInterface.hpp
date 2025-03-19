@@ -1,4 +1,6 @@
 #pragma once
+#define WINDOWS_LEAN_AND_MEAN
+
 #include "../ImGui/imgui.h"
 #include "../ImGui/imgui_impl_dx9.h"
 #include "../ImGui/imgui_impl_win32.h"
@@ -12,13 +14,15 @@
 const wchar_t* const VarName##_W = L##Value; \
 const char* const VarName##_A = ##Value;
 
+/* Constants */
+
 // TODO: Put this in a better place. I haven't learned c++ long enough to know where these constants are supposed to go
 // Maybe namespace??
 const wchar_t* const WINDOW_CLASS_NAME = L"UltraInjector";
 DEFINE_WIDE_AND_ANSI_CHAR(WINDOW_TITLE, "Ultra Injector")
 
 // As for these, i need to learn when if i should use constexpr because i am not sure yet
-const POINTS WINDOW_SIZE = { 600, 400 };
+const POINTS WINDOW_SIZE = { 500, 330 };
 
 class UserInterface
 {
@@ -44,6 +48,8 @@ private:
 	/* Whether the D3D device has been lost or not (can be due to user changes like resolution, graphics update, etc) */
 	bool bDeviceLost;
 public:
+	/* Default constructor and destructor */
+	
 	UserInterface() = default;
 	~UserInterface() = default;
 private:
