@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <filesystem>
 
 /* Constants */
 
@@ -22,6 +23,13 @@ struct Process {
 	
 	/* The process name (with .exe in it). e.g. Notepad.exe, RocketLeague.exe, RobloxPlayerBeta.exe, etc */
 	std::string ProcessName;
+
+	/**
+	 * @brief Finds a module in the process by the module name
+	 * @param ModuleName - The name of the module to find
+	 * @return The handle to the module if found, NULL otherwise
+	 */
+	HMODULE FindModule(std::string ModuleName);
 
 	/**
 	 * @brief Checks if the process is running or not
@@ -91,6 +99,22 @@ public:
 	 * @return A vector of all active processes
 	 */
 	std::vector<Process> GetActiveWindows();
+
+	/**
+	 * @brief Injects a DLL into a process
+	 * @param Process - The process to inject the DLL into
+	 * @param DLLPath - The path to the DLL to inject
+	 * @return True if the DLL was injected successfully, false otherwise
+	 */
+	bool InjectDLL(Process Process, const std::filesystem::path DLLPath);
+
+	/**
+	 * @brief Uninjects a DLL into a process
+	 * @param Process - The process to uninject the DLL from
+	 * @param DLLPath - The path to the DLL to uninject
+	 * @return True if the DLL was uninjected successfully, false otherwise
+	 */
+	bool UninjectDLL(Process Process, const std::filesystem::path DLLPath);
 
 	/**
 	 * @brief Finds a process from process name if it is lost

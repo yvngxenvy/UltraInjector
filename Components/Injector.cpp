@@ -1,5 +1,30 @@
 #include "Injector.hpp"
 
+HMODULE Process::FindModule(std::string ModuleName)
+{
+    HMODULE hMods[1024];
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, ProcessID);
+    if (hProcess == NULL) {
+        return NULL;
+    }
+
+    DWORD cbNeeded;
+    if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded)) {
+        for (unsigned int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++) {
+            char szModName[MAX_PATH];
+            if (GetModuleBaseNameA(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(char))) {
+                if (ModuleName == szModName) {
+                    CloseHandle(hProcess);
+                    return hMods[i];
+                }
+            }
+        }
+    }
+
+    CloseHandle(hProcess);
+    return NULL;
+}
+
 bool Process::IsRunning()
 {
 	if (ProcessID == 0) {
@@ -112,6 +137,80 @@ std::vector<Process> Injector::GetActiveWindows()
 		}
 	}
 	return processes;
+}
+
+bool Injector::InjectDLL(Process Process, const std::filesystem::path DLLPath)
+{
+    SIZE_T dllPathSize = DLLPath.string().size() + 1;
+
+    HANDLE hProcess = Process.CreateHandle();
+	if (hProcess == NULL) {
+		return false;
+	}
+
+    LPVOID pDLLPath = VirtualAllocEx(hProcess, NULL, dllPathSize, MEM_COMMIT, PAGE_READWRITE);
+	if (pDLLPath == NULL) {
+		CloseHandle(hProcess);
+		return false;
+	}
+
+    if (WriteProcessMemory(hProcess, pDLLPath, (LPVOID)DLLPath.string().c_str(), dllPathSize, NULL) == false) {
+		CloseHandle(hProcess);
+		return false;
+    }
+
+    HMODULE kernalLibrary = GetModuleHandleA("Kernel32.dll");
+	if (kernalLibrary == NULL) {
+		CloseHandle(hProcess);
+		return false;
+	}
+
+	FARPROC pLoadLibraryA = GetProcAddress(kernalLibrary, "LoadLibraryA");
+
+    HANDLE hLoadThread = CreateRemoteThread(hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)pLoadLibraryA, pDLLPath, NULL, NULL);
+    if (hLoadThread == NULL) {
+        CloseHandle(hProcess);
+        return false;
+    }
+
+	WaitForSingleObject(hLoadThread, INFINITE);
+
+	VirtualFreeEx(hProcess, pDLLPath, dllPathSize, MEM_RELEASE);
+	CloseHandle(hLoadThread);
+	CloseHandle(hProcess);
+	return true;
+}
+
+bool Injector::UninjectDLL(Process Process, const std::filesystem::path DLLPath)
+{
+    HANDLE hProcess = Process.CreateHandle();
+    if (hProcess == NULL) {
+        return false;
+    }
+
+    HMODULE hModule = Process.FindModule(DLLPath.string());
+    if (!hModule) {
+        CloseHandle(hProcess);
+        return;
+    }
+
+    HMODULE kernalLibrary = GetModuleHandleA("Kernel32.dll");
+    if (kernalLibrary == NULL) {
+        CloseHandle(hProcess);
+        return false;
+    }
+
+    FARPROC pFreeLibrary = GetProcAddress(kernalLibrary, "FreeLibrary");
+
+    HANDLE hLoadThread = CreateRemoteThread(hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)pFreeLibrary, hModule, NULL, NULL);
+    if (hLoadThread == NULL) {
+        CloseHandle(hProcess);
+        return false;
+    }
+
+    WaitForSingleObject(hLoadThread, INFINITE);
+
+    CloseHandle(hProcess);
 }
 
 Process Injector::RelocateProcess(Process Process)
