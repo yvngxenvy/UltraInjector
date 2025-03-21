@@ -188,7 +188,7 @@ bool Injector::UninjectDLL(Process Process, const std::filesystem::path DLLPath)
         return false;
     }
 
-    HMODULE hModule = Process.FindModule(DLLPath.string());
+    HMODULE hModule = Process.FindModule(DLLPath.filename().string());
     if (!hModule) {
         CloseHandle(hProcess);
         return false;
